@@ -4,31 +4,15 @@ from setuptools.command.build_ext import build_ext
 import sys
 
 
-class get_pybind_include(object):
-    """Helper class to determine the pybind11 include path
-    The purpose of this class is to postpone importing pybind11
-    until it is actually installed, so that the ``get_include()``
-    method can be invoked. """
-
-    def __init__(self, user=False):
-        self.user = user
-
-    def __str__(self):
-        import pybind11
-        return pybind11.get_include(self.user)
-
-
-libraries = []  # add any libraries, such as sqlite3, here
+libraries = ['tensorflow_framework']  # add any libraries, such as sqlite3, here
 
 ext_modules = [
     Extension(
-        '{{ cookiecutter.module_name }}', [
+        '{{ cookiecutter.op_name }}.{{ cookiecutter.op_name }}_op',
+        [
             'src/module.cpp',
         ],
-        include_dirs=[
-            get_pybind_include(),
-            get_pybind_include(user=True),
-        ],
+        include_dirs=[],
         libraries=libraries,
         language='c++'
     ),
@@ -37,11 +21,13 @@ ext_modules = [
 
 class BuildExt(build_ext):
     def build_extensions(self):
+        import tensorflow as tf
+
         compiler_type = self.compiler.compiler_type
 
-        opts = ['-O2', '-march=native']
+        opts = ['-O2', '-march=native', '-ffast-math'] + tf.sysconfig.get_compile_flags()
         if sys.platform == 'darwin':
-            opts += ['-stdlib=libc++', '-mmacosx-version-min=10.8']
+            opts += ['-stdlib=libc++', '-mmacosx-version-min=10.8', '-undefined dynamic_lookup']
 
         if compiler_type == 'unix':
             opts.extend([
@@ -51,6 +37,7 @@ class BuildExt(build_ext):
 
         for ext in self.extensions:
             ext.extra_compile_args = opts
+            ext.extra_link_args = tf.sysconfig.get_link_flags()
 
         build_ext.build_extensions(self)
 
@@ -59,9 +46,10 @@ setup(
     name='{{ cookiecutter.project_slug }}',
     description='{{ cookiecutter.description }}',
     version='{{ cookiecutter.version }}',
-    setup_requires=['pybind11>=2.2.3'],
-    install_requires=['pybind11>=2.2.3'],
+    setup_requires=['tensorflow>=1.8.0'],
+    install_requires=['tensorflow>=1.8.0'],
     ext_modules=ext_modules,
+    packages=['{{ cookiecutter.op_name }}'],
     cmdclass={'build_ext': BuildExt},
     test_suite='tests',
     zip_safe=False,

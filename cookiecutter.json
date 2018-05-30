@@ -1,7 +1,7 @@
 {
-    "module_name": "new_module",
+    "op_name": "times2",
     "description": "My python extension",
-    "function_name": "times2",
-    "project_slug": "{{ cookiecutter.module_name|lower|replace('_', '-') }}",
+    "project_slug": "{{ cookiecutter.op_name|lower|replace('_', '-') }}",
+    "cpp_kernel_name": "{{ cookiecutter.op_name.title()|replace('_', '') }}",
     "version": "0.1.0"
 }

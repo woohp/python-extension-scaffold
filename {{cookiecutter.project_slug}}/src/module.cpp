@@ -1,34 +1,54 @@
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-using namespace std;
-namespace py = pybind11;
+#include "tensorflow/core/framework/common_shape_fns.h"
+#include "tensorflow/core/framework/op.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/shape_inference.h"
 
 
-int {{ cookiecutter.function_name }}(int x, int y)
+// Register the op definition for {{ cookiecutter.cpp_kernel_name }}.
+// Add any attrs and input tensors that define the op here.
+REGISTER_OP("{{ cookiecutter.cpp_kernel_name }}")
+    .Input("x: float32")
+    .Output("y: float32")
+    .Output("gradients: float32")
+    // .SetIsStateful()
+    .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* ctx) {
+        ctx->set_output(0, ctx->input(0));
+        ctx->set_output(1, ctx->input(0));
+        return ::tensorflow::Status::OK();
+    });
+
+
+namespace tensorflow
 {
-    return x + y;
-}
-
-
-PYBIND11_MODULE({{ cookiecutter.module_name }}, m)
+class {{ cookiecutter.cpp_kernel_name }}: public OpKernel
 {
-    using namespace pybind11::literals;
+public:
+    explicit {{ cookiecutter.cpp_kernel_name }}(OpKernelConstruction* ctx)
+        : OpKernel(ctx)
+    {}
 
-    m.doc() = "My Python extension";
+    void Compute(OpKernelContext* ctx) override
+    {
+        const Tensor& input_tensor = ctx->input(0);
+        auto input = input_tensor.flat<float>();
 
-    const auto {{ cookiecutter.function_name }}_docstring =
-        R"(Adds two numbers.
+        Tensor* output_tensor = nullptr;
+        OP_REQUIRES_OK(ctx, ctx->allocate_output(0, input_tensor.shape(), &output_tensor));
+        auto output = output_tensor->flat<float>();
 
-    Args:
-        x: the first number to add
-        y: the second number to add
+        const int N = input.size();
+        for (int i = 0; i < N; i++)
+            output(i) = input(i) * 2;
 
-    Returns:
-        sum of the two numbers.
-)";
-    m.def("{{ cookiecutter.function_name }}", &{{ cookiecutter.function_name }}, {{ cookiecutter.function_name }}_docstring, "x"_a, "y"_a);
+        Tensor* gradients_tensor = nullptr;
+        OP_REQUIRES_OK(ctx, ctx->allocate_output("gradients", input_tensor.shape(), &gradients_tensor));
+        auto gradients = gradients_tensor->flat<float>();
+        gradients.setConstant(2.0f);
+    }
+};
 
-#ifdef VERSION_INFO
-    m.attr("__version__") = VERSION_INFO;
-#endif
-}
+
+// Register the kernel implementation for {{ cookiecutter.cpp_kernel_name }}.
+REGISTER_KERNEL_BUILDER(Name("{{ cookiecutter.cpp_kernel_name }}").Device(DEVICE_CPU), {{ cookiecutter.cpp_kernel_name }});
+
+}  // namespace tensorflow

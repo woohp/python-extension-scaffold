@@ -20,11 +20,9 @@ class get_pybind_include(object):
 
 libraries = []  # add any libraries, such as sqlite3, here
 
-
 ext_modules = [
     Extension(
-        'myproject',
-        [
+        'myproject', [
             'src/module.cpp',
         ],
         include_dirs=[
@@ -47,8 +45,8 @@ class BuildExt(build_ext):
 
         if compiler_type == 'unix':
             opts.extend([
-                '-DVERSION_INFO="%s"' % self.distribution.get_version(),
-                '-std=c++14'
+                '-DVERSION_INFO="{}"'.format(self.distribution.get_version()),
+                '-std=c++14',
             ])
 
         for ext in self.extensions:

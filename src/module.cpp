@@ -17,7 +17,7 @@ PYBIND11_MODULE(myproject, m)
     m.doc() = "My Python extension";
 
     const auto add_docstring =
-R"(Adds two numbers.
+        R"(Adds two numbers.
 
     Args:
         x: the first number to add

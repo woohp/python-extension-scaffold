@@ -39,7 +39,7 @@ class BuildExt(build_ext):
     def build_extensions(self):
         compiler_type = self.compiler.compiler_type
 
-        opts = ['-O2']
+        opts = ['-O2', '-march=native']
         if sys.platform == 'darwin':
             opts += ['-stdlib=libc++', '-mmacosx-version-min=10.8']
 

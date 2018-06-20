@@ -18,6 +18,12 @@ class get_pybind_include(object):
         return pybind11.get_include(self.user)
 
 
+class get_numpy_include(object):
+    def __str__(self):
+        import numpy
+        return numpy.get_include()
+
+
 libraries = []  # add any libraries, such as sqlite3, here
 
 ext_modules = [
@@ -28,6 +34,7 @@ ext_modules = [
         include_dirs=[
             get_pybind_include(),
             get_pybind_include(user=True),
+            get_numpy_include(),
         ],
         libraries=libraries,
         language='c++'

@@ -1,4 +1,18 @@
 # Python extension using pybind11 scaffold
 
-This is a python extension scaffold. You can clone this directory as a base for a new python extension project.
-To include numpy, checkout and use the numpy branch instead.
+This is a python extension cookiecutter scaffold.
+
+To use:
+```bash
+cookiecutter gh:woohp/python-extension-scaffold
+```
+
+To include numpy:
+```bash
+cookiecutter gh:woohp/python-extension-scaffold --checkout numpy
+```
+
+To include tensorflow:
+```bash
+cookiecutter gh:woohp/python-extension-scaffold --checkout tensorflow
+```

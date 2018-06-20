@@ -4,19 +4,19 @@ using namespace std;
 namespace py = pybind11;
 
 
-int add(int x, int y)
+int {{ cookiecutter.function_name }}(int x, int y)
 {
     return x + y;
 }
 
 
-PYBIND11_MODULE(myproject, m)
+PYBIND11_MODULE({{ cookiecutter.module_name }}, m)
 {
     using namespace pybind11::literals;
 
     m.doc() = "My Python extension";
 
-    const auto add_docstring =
+    const auto {{ cookiecutter.function_name }}_docstring =
         R"(Adds two numbers.
 
     Args:
@@ -26,7 +26,7 @@ PYBIND11_MODULE(myproject, m)
     Returns:
         sum of the two numbers.
 )";
-    m.def("add", &add, add_docstring, "x"_a, "y"_a);
+    m.def("{{ cookiecutter.function_name }}", &{{ cookiecutter.function_name }}, {{ cookiecutter.function_name }}_docstring, "x"_a, "y"_a);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;

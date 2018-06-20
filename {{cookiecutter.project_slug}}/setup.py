@@ -22,7 +22,7 @@ libraries = []  # add any libraries, such as sqlite3, here
 
 ext_modules = [
     Extension(
-        'myproject', [
+        '{{ cookiecutter.module_name }}', [
             'src/module.cpp',
         ],
         include_dirs=[
@@ -56,11 +56,11 @@ class BuildExt(build_ext):
 
 
 setup(
-    name='myproject',
-    description='My python extension project',
-    version='0.0.1',
-    setup_requires=['pybind11>=2.2.1'],
-    install_requires=['pybind11>=2.2.1'],
+    name='{{ cookiecutter.project_slug }}',
+    description='{{ cookiecutter.description }}',
+    version='{{ cookiecutter.version }}',
+    setup_requires=['pybind11>=2.2.3'],
+    install_requires=['pybind11>=2.2.3'],
     ext_modules=ext_modules,
     cmdclass={'build_ext': BuildExt},
     test_suite='tests',

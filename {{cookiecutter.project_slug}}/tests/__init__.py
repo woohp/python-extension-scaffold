@@ -5,18 +5,19 @@ import numpy as np
 
 
 class {{ cookiecutter.cpp_kernel_name }}TestCase(unittest.TestCase):
-    def test_{{ cookiecutter.op_name }}(self):
-        x = np.arange(6, dtype=np.float32).reshape((2, 3))
+    def test_{{ cookiecutter.op_name }}_dataset(self):
         with tf.Session() as sess:
-            y = sess.run({{ cookiecutter.op_name }}.{{ cookiecutter.op_name }}(x))
-        np.testing.assert_array_equal(y, x * 2)
+            d = {{ cookiecutter.op_name }}.{{ cookiecutter.cpp_kernel_name }}Dataset()
+            iterator = d.make_one_shot_iterator()
+            next_element = iterator.get_next()
+            try:
+                i = 0
+                while True:
+                    batch = sess.run(next_element)
+                    np.testing.assert_equal(batch, np.full((8,), i, dtype=np.int32))
+                    i += 1
 
-    def test_gradient(self):
-        x = tf.placeholder('float32', [None, None])
-        y = tf.reduce_sum({{ cookiecutter.op_name }}.{{ cookiecutter.op_name }}(x) ** 3)
-        g = tf.gradients(y, x)[0]
+            except tf.errors.OutOfRangeError:
+                pass
 
-        with tf.Session() as sess:
-            x_ = np.arange(6, dtype=np.float32).reshape((2, 3))
-            g_ = sess.run(g, {x: x_})
-        np.testing.assert_almost_equal(g_, 6 * (2 * x_) ** 2, 2)
+        self.assertEqual(i, 32)

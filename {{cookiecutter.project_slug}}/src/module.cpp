@@ -1,32 +1,24 @@
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <torch/torch.h>
 using namespace std;
-namespace py = pybind11;
 
 
-int {{ cookiecutter.function_name }}(int x, int y)
+std::vector<at::Tensor> {{ cookiecutter.op_name }}_forward(at::Tensor input)
 {
-    return x + y;
+    return { input * 2 };
+}
+
+std::vector<at::Tensor> {{ cookiecutter.op_name }}_backward(at::Tensor grad_out)
+{
+    return { grad_out * 2 };
 }
 
 
-PYBIND11_MODULE({{ cookiecutter.module_name }}, m)
+PYBIND11_MODULE(TORCH_EXTENSION_NAME, m)
 {
     using namespace pybind11::literals;
 
-    m.doc() = "My Python extension";
-
-    const auto {{ cookiecutter.function_name }}_docstring =
-        R"(Adds two numbers.
-
-    Args:
-        x: the first number to add
-        y: the second number to add
-
-    Returns:
-        sum of the two numbers.
-)";
-    m.def("{{ cookiecutter.function_name }}", &{{ cookiecutter.function_name }}, {{ cookiecutter.function_name }}_docstring, "x"_a, "y"_a);
+    m.def("forward", {{ cookiecutter.op_name }}_forward);
+    m.def("backward", {{ cookiecutter.op_name }}_backward);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;
